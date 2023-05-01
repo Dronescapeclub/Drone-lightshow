@@ -1,8 +1,8 @@
 /*
 * Ardupot Receiver Code for Drone PPM
-* Logan Lee
+* Christopher Lai
 * BANSHEE UAV
-* Last Updated: 5/1/2023
+* Last Updated: 10/13/2022
 * 
 * Code that is used to control a drone like Storm4 or Brody with PPM
 * Included calibration sequence with joystick buttons
@@ -108,6 +108,13 @@ CMD_Tran cmd;
 
 bool conn = false;
 
+#include <FastLED.h>
+
+#define LED_PIN     7
+#define NUM_LEDS    24
+
+CRGB leds[NUM_LEDS];
+
 void setup() {
   // Set Up Serial Comms - Debug
   Serial.begin(9600);
@@ -127,6 +134,7 @@ void setup() {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;);
   }
+  FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
 
   //to recieve
   radio.startListening();
@@ -150,10 +158,10 @@ void loop() {
     cmd.RStickY = map(RecLarge,1023,0,high_end_pitch,LOW_END); // Pitch - 2005 high
     
     RecLarge= packet.potleftL | ((packet.potleftH&0x03)<<8);
-    cmd.LTrim = map(RecLarge,0,1023,LOW_END,HIGH_END); //THROTTLE
+    cmd.LTrim = map(RecLarge,0,1023,LOW_END,HIGH_END);
     
     RecLarge = packet.potrightL | ((packet.potrightH&0x03)<<8); 
-    cmd.RTrim = map(RecLarge,0,100,LOW_END,HIGH_END);
+    cmd.RTrim = map(RecLarge,0,1023,LOW_END,HIGH_END);
 
     cmd.LButton = packet.btnleft;
     cmd.RButton = packet.btnright;
@@ -275,6 +283,16 @@ void loop() {
     OLED_display_NO();
     // delay(5); 
   }
+  for (int i = 0; i <= 23; i++) {
+    leds[i] = CRGB ( 255, 215, 0);
+    FastLED.show();
+    delay(40);
+  }
+  for (int i = 23; i >= 0; i--) {
+    leds[i] = CRGB ( 160, 32, 240);
+    FastLED.show();
+    delay(40);
+  }
 }
 
 void OLED_display_YES() {
@@ -284,11 +302,11 @@ void OLED_display_YES() {
   display.setCursor(0,0);
   if (conn)
   {
-    display.println("RF: ON");
+    display.println("RF: YES");
   }
   else
   {
-    display.println("RF: OFF");
+    display.println("RF: NO");
   }
   
   display.setCursor(64,0);
@@ -317,11 +335,11 @@ void OLED_display_NO() {
   display.setCursor(0,0);
   if (conn)
   {
-    display.println("RF: ON");
+    display.println("RF: YES");
   }
   else
   {
-    display.println("RF: OFF");
+    display.println("RF: NO");
   }
   display.setCursor(64,0);
   display.println("BTN: " + String(0) + " | " + String(0));
