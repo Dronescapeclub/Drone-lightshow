@@ -1,8 +1,8 @@
 /*
 * Ardupot Receiver Code for Drone PPM
-* Christopher Lai
+* Logan Lee
 * BANSHEE UAV
-* Last Updated: 10/13/2022
+* Last Updated: 5/1/2023
 * 
 * Code that is used to control a drone like Storm4 or Brody with PPM
 * Included calibration sequence with joystick buttons
